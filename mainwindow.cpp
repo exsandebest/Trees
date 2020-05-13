@@ -5,27 +5,16 @@
 #include "Vertex.h"
 #include "SplayTree.h"
 #include <math.h>
-#include <QMessageBox>
-AVLTree AVLT;
-RedBlackTree RBT;
-SplayTree ST;
-
 
 
 int curTree = 1;
-
 int RightEnd = 0;
-
-
 int RAD = 25;
-
-
-int MainWindow::v(int x){
-    return x-RAD;
-}
-
-
 QGraphicsScene * Scene;
+
+AVLTree AVLT;
+RedBlackTree RBT;
+SplayTree ST;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -48,18 +37,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->progressBar->hide();
 }
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
 template<class T> void MainWindow::presketch(T* p){
     Scene->clear();
     delete Scene;
     Scene = new QGraphicsScene;
     ui->treeView->setScene(Scene);
-    RightEnd = sketch(p,0,-RightEnd).first;
+    RightEnd = sketch(p, 0, -RightEnd).first;
     ui->treeView->setFocusPolicy(Qt::FocusPolicy::WheelFocus);
 }
 
 
 QPair <int, int> MainWindow::sketch(RBNode *p, int h, int y){
-    if ((p == p->l && p == p->r )|| p == nullptr) {
+    if ((p == p->l && p == p->r) || p == nullptr) {
         QGraphicsItem * item = new Vertex(0, "black",true);
         Scene->addItem(item);
         item->setPos(v(y), v(h));
@@ -67,9 +62,9 @@ QPair <int, int> MainWindow::sketch(RBNode *p, int h, int y){
     }
 
     QPair <int, int> lnr = sketch(p->l, h-75, y);
-        Scene->addLine(lnr.first+50, h-25, lnr.second, h-50);
+    Scene->addLine(lnr.first+50, h-25, lnr.second, h-50);
     QPair<int ,int> nr = sketch(p->r, h-75, lnr.first+100);
-        Scene->addLine(lnr.first+50, h-25, nr.second, h-50);
+    Scene->addLine(lnr.first+50, h-25, nr.second, h-50);
     QGraphicsItem * item = new Vertex(p->key, (p->b?"black":"red"));
     Scene->addItem(item);
     item->setPos(v(lnr.first+50), v(h));
@@ -109,34 +104,29 @@ QPair<int, int> MainWindow::sketch(SNode * p, int h, int y){
     return {nr.first, lnr.first+50};
 }
 
-
-
-
+int MainWindow::v(int x){
+    return x-RAD;
+}
 
 
 template<class T, class D> void MainWindow::fromOneToAnother(T * p, D &tree){
-  if (p == nullptr) return;
-  if (p == p->l && p == p->r) return;
-        fromOneToAnother(p->l, tree);
-        fromOneToAnother(p->r, tree);
-        tree.add(p->key);
+    if (p == nullptr) return;
+    if (p == p->l && p == p->r) return;
+    fromOneToAnother(p->l, tree);
+    fromOneToAnother(p->r, tree);
+    tree.add(p->key);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+
 
 
 void MainWindow::on_btn_add_clicked(){
-
     QString str = ui->line_input->text();
     if (curTree == 1){
         if (str[0] == ' ' || str == ""){
             AVLT.add(qrand()%10000);
             presketch(AVLT.getRoot());
             return;
-            //return;
         }
         QStringList lis = str.split(" ");
         for (int i = 0; i < lis.size(); ++i){
@@ -149,7 +139,6 @@ void MainWindow::on_btn_add_clicked(){
             RBT.add(qrand()%10000);
             presketch(RBT.getRoot());
             return;
-            //return;
         }
         QStringList lis = str.split(" ");
         for (int i = 0; i < lis.size(); ++i){
@@ -163,7 +152,6 @@ void MainWindow::on_btn_add_clicked(){
             ST.add(qrand()%10000);
             presketch(ST.getRoot());
             return;
-            //return;
         }
         QStringList lis = str.split(" ");
         for (int i = 0; i < lis.size(); ++i){
@@ -257,21 +245,20 @@ void MainWindow::on_rbtn_RB_clicked()
 void MainWindow::on_rbtn_S_clicked()
 {
     if (curTree == 3){
-            return;
+        return;
+    } else {
+        if (curTree == 2){
+            fromOneToAnother(RBT.getRoot(), ST);
+            presketch(ST.getRoot());
+            curTree = 3;
+            RBT.clear();
         } else {
-            if (curTree == 2){
-                fromOneToAnother(RBT.getRoot(), ST);
-                presketch(ST.getRoot());
-                curTree = 3;
-                RBT.clear();
-            } else {
-                fromOneToAnother(AVLT.getRoot(), ST);
-                presketch(ST.getRoot());
-                curTree = 3;
-                AVLT.clear();
-            }
+            fromOneToAnother(AVLT.getRoot(), ST);
+            presketch(ST.getRoot());
+            curTree = 3;
+            AVLT.clear();
         }
-
+    }
 }
 
 void MainWindow::on_btnClear_clicked()

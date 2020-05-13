@@ -1,9 +1,9 @@
 #ifndef AVLTREE_H
 #define AVLTREE_H
 
-#include <QDebug>
 #include <bits/stdc++.h>
 #include <QStack>
+
 struct AVLNode {
     int key;
     int h;
@@ -18,11 +18,12 @@ struct AVLNode {
 };
 
 
-
-
 class AVLTree{
 
 private:
+
+    AVLNode * root;
+
     void balance(AVLNode *&p, int troubleSide){
          if (troubleSide  == -1){
             int k = compareHeigth(p->l);
@@ -238,16 +239,6 @@ private:
     }
 
 
-    void print(AVLNode * p){
-        if (p == nullptr) return;
-        print(p->l);
-        qDebug() << p->key << "/" << p->h;
-        print(p->r);
-    }
-
-    AVLNode * root;
-
-
 
     void clear(AVLNode * p){
         if (p){
@@ -260,10 +251,6 @@ private:
 public:
     void add(int key){
         add(key, this->root);
-    }
-    void print(){
-        this->print(root);
-        qDebug() << "\n";
     }
     void drop(int key){
         drop(key, this->root);

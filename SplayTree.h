@@ -1,16 +1,12 @@
 #ifndef SPLAYTREE_H
 #define SPLAYTREE_H
 #include <QString>
-#include <QDebug>
 
 struct SNode{
     int key;
     SNode * l;
     SNode * r;
 };
-
-
-
 
 
 class SplayTree{
@@ -127,20 +123,6 @@ private:
         }
     }
 
-    void print(SNode * p){
-        if (p){
-            QString s = "";
-            print(p->l);
-            if (p->l){
-                s+= QString::number(p->l->key) + "<-";
-            }
-            s+= QString::number(p->key);
-            if (p->r){
-                s+="->"+ QString::number(p->r->key);
-            }
-            qDebug() << s;
-        }
-    }
     void clear(SNode * p){
         if (p){
             clear(p->l);
@@ -161,9 +143,6 @@ public:
      SNode * getRoot(){
         return root;
     }
-     void print(){
-         print(root);
-     }
      void clear(){
          clear(root);
          root = nullptr;

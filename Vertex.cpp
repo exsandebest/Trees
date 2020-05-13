@@ -1,5 +1,4 @@
 #include "Vertex.h"
-#include <QDebug>
 
 Vertex::Vertex(int k, QString color, bool isNull) : QGraphicsItem(), key(k), color(color), isNull(isNull){}
 Vertex::~Vertex(){}

@@ -1,7 +1,8 @@
 #ifndef REDBLACKTREE_H
 #define REDBLACKTREE_H
-#include <QDebug>
+
 #include <bits/stdc++.h>
+
 struct RBNode {
     int key; 
     int h;
@@ -11,10 +12,6 @@ struct RBNode {
     bool b;
 
 };
-
-
-
-
 
 class RedBlackTree{
     #define NIL &sentinel

@@ -2,17 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QDebug>
 #include <bits/stdc++.h>
 #include <QStack>
 #include "RedBlackTree.h"
 #include "SplayTree.h"
 #include "AVLTree.h"
-
-
-
-
-
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
