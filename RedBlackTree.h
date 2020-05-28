@@ -4,18 +4,17 @@
 #include <bits/stdc++.h>
 
 struct RBNode {
-    int key; 
+    int key;
     int h;
+    bool b;
     RBNode *l;
     RBNode *r;
     RBNode * p;
-    bool b;
-
 };
 
 class RedBlackTree{
-    #define NIL &sentinel
-    RBNode sentinel = {0,0,NIL,NIL,NIL,true};
+#define NIL &sentinel
+    RBNode sentinel = {0, 0, true, NIL, NIL, NIL};
     RBNode *root = NIL;
 
 public:
@@ -25,10 +24,11 @@ public:
         if (y->l != NIL) y->l->p = x;
         if (y != NIL) y->p = x->p;
         if (x->p) {
-            if (x == x->p->l)
+            if (x == x->p->l){
                 x->p->l = y;
-            else
+            } else {
                 x->p->r = y;
+            }
         } else {
             root = y;
         }
@@ -42,10 +42,11 @@ public:
         if (y->r != NIL) y->r->p = x;
         if (y != NIL) y->p = x->p;
         if (x->p) {
-            if (x == x->p->r)
+            if (x == x->p->r) {
                 x->p->r = y;
-            else
+            } else {
                 x->p->l = y;
+            }
         } else {
             root = y;
         }
@@ -97,10 +98,9 @@ public:
         current = root;
         parent = nullptr;
         while (current != NIL) {
-            if (data == current->key) return (current);
+            if (data == current->key) return current;
             parent = current;
-            current = data < current->key ?
-                current->l : current->r;
+            current = data < current->key ? current->l : current->r;
         }
         x = new RBNode;
         x->key = data;
@@ -108,16 +108,17 @@ public:
         x->l = NIL;
         x->r = NIL;
         x->b = 0;
-        if(parent) {
-            if(data<parent->key)
+        if (parent) {
+            if (data < parent->key) {
                 parent->l = x;
-            else
+            } else {
                 parent->r = x;
+            }
         } else {
             root = x;
         }
         afterAdd(x);
-        return(x);
+        return x;
     }
 
     void afterDrop(RBNode *x) {
@@ -127,7 +128,7 @@ public:
                 if (w->b == 0) {
                     w->b = 1;
                     x->p->b = 0;
-                    leftTurn (x->p);
+                    leftTurn(x->p);
                     w = x->p->r;
                 }
                 if (w->l->b == 1 && w->r->b == 1) {
@@ -137,13 +138,13 @@ public:
                     if (w->r->b == 1) {
                         w->l->b = 1;
                         w->b = 0;
-                        rightTurn (w);
+                        rightTurn(w);
                         w = x->p->r;
                     }
                     w->b = x->p->b;
                     x->p->b = 1;
                     w->r->b = 1;
-                    leftTurn (x->p);
+                    leftTurn(x->p);
                     x = root;
                 }
             } else {
@@ -151,7 +152,7 @@ public:
                 if (w->b == 0) {
                     w->b = 1;
                     x->p->b = 0;
-                    rightTurn (x->p);
+                    rightTurn(x->p);
                     w = x->p->l;
                 }
                 if (w->r->b == 1 && w->l->b == 1) {
@@ -161,13 +162,13 @@ public:
                     if (w->l->b == 1) {
                         w->r->b = 1;
                         w->b = 0;
-                        leftTurn (w);
+                        leftTurn(w);
                         w = x->p->l;
                     }
                     w->b = x->p->b;
                     x->p->b = 1;
                     w->l->b = 1;
-                    rightTurn (x->p);
+                    rightTurn(x->p);
                     x = root;
                 }
             }
@@ -184,37 +185,35 @@ public:
             y = z->r;
             while (y->l != NIL) y = y->l;
         }
-        if (y->l != NIL)
+        if (y->l != NIL){
             x = y->l;
-        else
+        } else {
             x = y->r;
+        }
         x->p = y->p;
-        if (y->p)
-            if (y == y->p->l)
+        if (y->p) {
+            if (y == y->p->l) {
                 y->p->l = x;
-            else
+            } else {
                 y->p->r = x;
-        else
+            }
+        } else {
             root = x;
-
+        }
         if (y != z) z->key = y->key;
-
-
-        if (y->b == 1)
-            afterDrop (x);
-
-        free (y);
+        if (y->b == 1) afterDrop(x);
+        free(y);
     }
 
     RBNode *findNode(int data) {
-
         RBNode *current = root;
-        while(current != NIL)
-            if(data == current->key)
+        while(current != NIL){
+            if(data == current->key) {
                 return (current);
-            else
-                current = data<current->key ?
-                    current->l : current->r;
+            } else {
+                current = data<current->key ? current->l : current->r;
+            }
+        }
         return nullptr;
     }
 
@@ -224,6 +223,7 @@ public:
             dropNode(tmp);
         }
     }
+
     void clear (RBNode * p){
         if (p == nullptr) return;
         if (p == p->l && p == p->r) return;
@@ -231,6 +231,7 @@ public:
         clear(p->l);
         delete p;
     }
+
     void clear(){
         clear(root);
         root = NIL;
@@ -239,7 +240,6 @@ public:
     RBNode * getRoot(){
         return root;
     }
-    void print(){}
 };
 
 

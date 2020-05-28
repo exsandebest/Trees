@@ -1,15 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QThread>
 #include "AVLTree.h"
 #include "RedBlackTree.h"
-#include "Vertex.h"
 #include "SplayTree.h"
-#include <math.h>
+#include "Vertex.h"
 
-
-int curTree = 1;
+int curTree = TTAVL;
 int RightEnd = 0;
-int RAD = 25;
+const int R = 25;
+const int TestSize = 100;
+const int TestDelay = 50; //ms
 QGraphicsScene * Scene;
 
 AVLTree AVLT;
@@ -61,51 +62,50 @@ QPair <int, int> MainWindow::sketch(RBNode *p, int h, int y){
         return {y,y};
     }
 
-    QPair <int, int> lnr = sketch(p->l, h-75, y);
-    Scene->addLine(lnr.first+50, h-25, lnr.second, h-50);
-    QPair<int ,int> nr = sketch(p->r, h-75, lnr.first+100);
-    Scene->addLine(lnr.first+50, h-25, nr.second, h-50);
+    QPair <int, int> lnr = sketch(p->l, h-3*R, y);
+    Scene->addLine(lnr.first+2*R, h-R, lnr.second, h-2*R);
+    QPair<int ,int> nr = sketch(p->r, h-3*R, lnr.first+4*R);
+    Scene->addLine(lnr.first+2*R, h-R, nr.second, h-2*R);
     QGraphicsItem * item = new Vertex(p->key, (p->b?"black":"red"));
     Scene->addItem(item);
-    item->setPos(v(lnr.first+50), v(h));
-    return {nr.first, lnr.first+50};
-
+    item->setPos(v(lnr.first+2*R), v(h));
+    return {nr.first, lnr.first+2*R};
 }
 
 QPair<int,int> MainWindow::sketch(AVLNode * p, int h, int y){
     if (p == nullptr) return {y,y};
-    QPair <int, int> lnr = sketch(p->l, h-75, y);
+    QPair <int, int> lnr = sketch(p->l, h-3*R, y);
     if (p->l){
-        Scene->addLine(lnr.first+50, h-25, lnr.second, h-50);
+        Scene->addLine(lnr.first+2*R, h-R, lnr.second, h-2*R);
     }
-    QPair<int ,int> nr = sketch(p->r, h-75, lnr.first+50);
+    QPair<int ,int> nr = sketch(p->r, h-3*R, lnr.first+2*R);
     if (p->r){
-        Scene->addLine(lnr.first+50, h-25, nr.second, h-50);
+        Scene->addLine(lnr.first+2*R, h-R, nr.second, h-2*R);
     }
     QGraphicsItem * item = new Vertex(p->key, "avl");
     Scene->addItem(item);
-    item->setPos(v(lnr.first+50), v(h));
-    return {nr.first, lnr.first+50};
+    item->setPos(v(lnr.first+2*R), v(h));
+    return {nr.first, lnr.first+2*R};
 }
 
 QPair<int, int> MainWindow::sketch(SNode * p, int h, int y){
     if (p == nullptr) return {y,y};
-    QPair <int, int> lnr = sketch(p->l, h-75, y);
+    QPair <int, int> lnr = sketch(p->l, h-3*R, y);
     if (p->l){
-        Scene->addLine(lnr.first+50, h-25, lnr.second, h-50);
+        Scene->addLine(lnr.first+2*R, h-R, lnr.second, h-2*R);
     }
-    QPair<int ,int> nr = sketch(p->r, h-75, lnr.first+50);
+    QPair<int ,int> nr = sketch(p->r, h-3*R, lnr.first+2*R);
     if (p->r){
-        Scene->addLine(lnr.first+50, h-25, nr.second, h-50);
+        Scene->addLine(lnr.first+2*R, h-R, nr.second, h-2*R);
     }
     QGraphicsItem * item = new Vertex(p->key, "splay");
     Scene->addItem(item);
-    item->setPos(lnr.first+50-25, h-25);
-    return {nr.first, lnr.first+50};
+    item->setPos(lnr.first+R, h-R);
+    return {nr.first, lnr.first+2*R};
 }
 
 int MainWindow::v(int x){
-    return x-RAD;
+    return x-R;
 }
 
 
@@ -118,11 +118,9 @@ template<class T, class D> void MainWindow::fromOneToAnother(T * p, D &tree){
 }
 
 
-
-
 void MainWindow::on_btn_add_clicked(){
     QString str = ui->line_input->text();
-    if (curTree == 1){
+    if (curTree == TTAVL){
         if (str[0] == ' ' || str == ""){
             AVLT.add(qrand()%10000);
             presketch(AVLT.getRoot());
@@ -134,7 +132,7 @@ void MainWindow::on_btn_add_clicked(){
         }
         ui->line_input->clear();
         presketch(AVLT.getRoot());
-    } else if (curTree == 2){
+    } else if (curTree == TTRB){
         if (str[0] == ' ' || str == ""){
             RBT.add(qrand()%10000);
             presketch(RBT.getRoot());
@@ -145,7 +143,6 @@ void MainWindow::on_btn_add_clicked(){
             RBT.add(lis[i].toInt());
         }
         ui->line_input->clear();
-        RBT.print();
         presketch(RBT.getRoot());
     } else {
         if (str[0] == ' ' || str == ""){
@@ -168,14 +165,14 @@ void MainWindow::on_btn_del_clicked(){
     if (str[0] == ' ' || str == ""){
         return;
     } else {
-        if (curTree == 1){
+        if (curTree == TTAVL){
             QStringList lis = str.split(" ");
             for (int i = 0; i < lis.size(); ++i){
                 AVLT.drop(lis[i].toInt());
             }
             ui->line_input->clear();
             presketch(AVLT.getRoot());
-        } else if (curTree == 2){
+        } else if (curTree == TTRB){
             QStringList lis = str.split(" ");
             for (int i = 0; i < lis.size(); ++i){
                 RBT.drop(lis[i].toInt());
@@ -195,77 +192,65 @@ void MainWindow::on_btn_del_clicked(){
 
 void MainWindow::on_btn_z_plus_clicked()
 {
-    ui->treeView->scale(1.1,1.1);
+    ui->treeView->scale(1.1, 1.1);
 }
 
 void MainWindow::on_btn_z_minus_clicked()
 {
-    ui->treeView->scale(1/1.1,1/1.1);
+    ui->treeView->scale(1/1.1, 1/1.1);
 }
 
 
 void MainWindow::on_rbtn_AVL_clicked()
 {
-    if (curTree == 1){
-        return;
-    } else {
-        if (curTree == 2){
-            fromOneToAnother(RBT.getRoot(), AVLT);
-            presketch(AVLT.getRoot());
-            curTree = 1;
-            RBT.clear();
-        } else {
-            fromOneToAnother(ST.getRoot(), AVLT);
-            presketch(AVLT.getRoot());
-            curTree = 1;
-            ST.clear();
-        }
+    if (curTree == TTRB){
+        fromOneToAnother(RBT.getRoot(), AVLT);
+        presketch(AVLT.getRoot());
+        curTree = TTAVL;
+        RBT.clear();
+    } else if (curTree == TTSPLAY) {
+        fromOneToAnother(ST.getRoot(), AVLT);
+        presketch(AVLT.getRoot());
+        curTree = TTAVL;
+        ST.clear();
     }
 }
 
 void MainWindow::on_rbtn_RB_clicked()
 {
-    if (curTree == 2){
-        return;
-    } else {
-        if (curTree == 1){
-            fromOneToAnother(AVLT.getRoot(), RBT);
-            presketch(RBT.getRoot());
-            curTree = 2;
-            AVLT.clear();
-        } else {
-            fromOneToAnother(ST.getRoot(), RBT);
-            presketch(RBT.getRoot());
-            curTree = 2;
-            ST.clear();
-        }
+    if (curTree == TTAVL){
+        fromOneToAnother(AVLT.getRoot(), RBT);
+        presketch(RBT.getRoot());
+        curTree = TTRB;
+        AVLT.clear();
+    } else if (curTree == TTSPLAY) {
+        fromOneToAnother(ST.getRoot(), RBT);
+        presketch(RBT.getRoot());
+        curTree = TTRB;
+        ST.clear();
     }
 }
 
 void MainWindow::on_rbtn_S_clicked()
 {
-    if (curTree == 3){
-        return;
-    } else {
-        if (curTree == 2){
-            fromOneToAnother(RBT.getRoot(), ST);
-            presketch(ST.getRoot());
-            curTree = 3;
-            RBT.clear();
-        } else {
-            fromOneToAnother(AVLT.getRoot(), ST);
-            presketch(ST.getRoot());
-            curTree = 3;
-            AVLT.clear();
-        }
+    if (curTree == TTRB){
+        fromOneToAnother(RBT.getRoot(), ST);
+        presketch(ST.getRoot());
+        curTree = TTSPLAY;
+        RBT.clear();
+    } else if (curTree == TTAVL){
+        fromOneToAnother(AVLT.getRoot(), ST);
+        presketch(ST.getRoot());
+        curTree = TTSPLAY;
+        AVLT.clear();
     }
 }
 
 void MainWindow::on_btnClear_clicked()
 {
-    if (curTree == 1){
+    if (curTree == TTAVL){
         AVLT.clear();
-    } else if (curTree == 2) {
+    } else if (curTree == TTRB) {
         RBT.clear();
     } else {
         ST.clear();
@@ -279,33 +264,27 @@ void MainWindow::on_btnClear_clicked()
 void MainWindow::on_btnTest_clicked()
 {
     ui->progressBar->show();
-    if (curTree == 1){
-        for (int i = 0; i < 100; ++i){
+    if (curTree == TTAVL){
+        for (int i = 0; i < TestSize; ++i){
             AVLT.add(qrand()*qrand());
             presketch(AVLT.getRoot());
-            for (int j = 0; j < 5000000; ++j){
-
-            }
+            QThread::msleep(TestDelay);
             ui->progressBar->setValue(i);
             QCoreApplication::processEvents();
         }
-    } else if (curTree == 2){
-        for (int i = 0; i < 100; ++i){
+    } else if (curTree == TTRB){
+        for (int i = 0; i < TestSize; ++i){
             RBT.add(qrand()*qrand());
             presketch(RBT.getRoot());
-            for (int j = 0; j < 5000000; ++j){
-
-            }
+            QThread::msleep(TestDelay);
             ui->progressBar->setValue(i);
             QCoreApplication::processEvents();
         }
     } else {
-        for (int i = 0; i < 100; ++i){
+        for (int i = 0; i < TestSize; ++i){
             ST.add(qrand()*qrand());
             presketch(ST.getRoot());
-            for (int j = 0; j < 5000000; ++j){
-
-            }
+            QThread::msleep(TestDelay);
             ui->progressBar->setValue(i);
             QCoreApplication::processEvents();
         }

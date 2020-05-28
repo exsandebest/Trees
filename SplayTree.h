@@ -1,6 +1,5 @@
 #ifndef SPLAYTREE_H
 #define SPLAYTREE_H
-#include <QString>
 
 struct SNode{
     int key;
@@ -12,12 +11,14 @@ struct SNode{
 class SplayTree{
 private:
     SNode * root;
+
     SNode * RRTurn(SNode * q){
         SNode * p = q->l;
         q->l = p->r;
         p->r = q;
         return p;
     }
+
     SNode * LLTurn(SNode * q){
         SNode * p = q->r;
         q->r = p->l;
@@ -55,7 +56,6 @@ private:
             } else {
                 break;
             }
-
         }
         LTMax->r = p->l;
         RTMin->l = p->r;
@@ -64,13 +64,13 @@ private:
         return p;
     }
 
-
     SNode * NN(int k){
         SNode * p = new SNode;
         p->key = k;
         p->l = p->r = nullptr;
         return p;
     }
+
     SNode * add(int k, SNode * p){
         static SNode * q = nullptr;
         if (!q){
@@ -131,22 +131,24 @@ private:
         }
     }
 
-
 public:
     SplayTree(){}
+
     void add(int k){
         root = add(k, root);
     }
+
     void drop(int k){
         root = drop(k, root);
     }
+
      SNode * getRoot(){
         return root;
     }
+
      void clear(){
          clear(root);
          root = nullptr;
      }
-
 };
 #endif // SPLAYTREE_H
