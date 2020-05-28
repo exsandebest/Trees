@@ -10,7 +10,7 @@ int curTree = TTAVL;
 int RightEnd = 0;
 const int R = 25;
 const int TestSize = 100;
-const int TestDelay = 50; //ms
+const int TestDelay = 25; //ms
 QGraphicsScene * Scene;
 
 AVLTree AVLT;
