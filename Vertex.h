@@ -7,7 +7,7 @@
 class Vertex : public QGraphicsItem{
 
 public:
-    Vertex(int k, QString color = "default", bool isNull = false);
+    Vertex(int k, QString colorString = "default", bool isNull = false);
     ~Vertex();
 
 protected:
@@ -16,7 +16,7 @@ protected:
 
 private:
     int key;
-    QString color;
+    QColor color;
     bool isNull;
 };
 

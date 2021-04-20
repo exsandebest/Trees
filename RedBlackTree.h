@@ -1,58 +1,76 @@
 #ifndef REDBLACKTREE_H
 #define REDBLACKTREE_H
 
-#include <bits/stdc++.h>
+#include <tree.h>
 
-struct RBNode {
-    int key;
-    int h;
-    bool b;
-    RBNode *l;
-    RBNode *r;
-    RBNode * p;
+class RBNode : public Node {
+public:
+    int key = 0;
+    int h = 0;
+    bool b = true;
+    RBNode *l = nullptr;
+    RBNode *r = nullptr;
+    RBNode *p = nullptr;
+
+    RBNode(){};
+    RBNode(int key, int h, bool b, RBNode *l, RBNode *r, RBNode *p)
+            : key(key), h(h), b(b), l(l), r(r), p(p) {}
+    ~RBNode(){};
+
+    RBNode *getL() override { return this->l; }
+    RBNode *getR() override { return this->r; }
+    int getKey() override { return this->key; }
+    int getType() override { return TTRB; }
 };
 
-class RedBlackTree{
+class RedBlackTree : public Tree {
 #define NIL &sentinel
-    RBNode sentinel = {0, 0, true, NIL, NIL, NIL};
-    RBNode *root = NIL;
 
 public:
-    void leftTurn(RBNode *x) {
-        RBNode *y = x->r;
-        x->r = y->l;
-        if (y->l != NIL) y->l->p = x;
-        if (y != NIL) y->p = x->p;
-        if (x->p) {
-            if (x == x->p->l){
-                x->p->l = y;
+    void add(int data) override {
+        RBNode *current, *parent, *x;
+        current = root;
+        parent = nullptr;
+        while (current != NIL) {
+            if (data == current->key) return;
+            parent = current;
+            current = data < current->key ? current->l : current->r;
+        }
+        x = new RBNode();
+        x->key = data;
+        x->p = parent;
+        x->l = NIL;
+        x->r = NIL;
+        x->b = 0;
+        if (parent) {
+            if (data < parent->key) {
+                parent->l = x;
             } else {
-                x->p->r = y;
+                parent->r = x;
             }
         } else {
-            root = y;
+            root = x;
         }
-        y->l = x;
-        if (x != NIL) x->p = y;
+        afterAdd(x);
     }
 
-    void rightTurn(RBNode *x) {
-        RBNode *y = x->l;
-        x->l = y->r;
-        if (y->r != NIL) y->r->p = x;
-        if (y != NIL) y->p = x->p;
-        if (x->p) {
-            if (x == x->p->r) {
-                x->p->r = y;
-            } else {
-                x->p->l = y;
-            }
-        } else {
-            root = y;
+    void drop(int k) override {
+        RBNode *tmp = findNode(k);
+        if (tmp != nullptr) {
+            dropNode(tmp);
         }
-        y->r = x;
-        if (x != NIL) x->p = y;
     }
+
+    void clear() override {
+        clear(root);
+        root = NIL;
+    }
+
+    RBNode *getRoot() override { return root; }
+
+private:
+    RBNode sentinel = {0, 0, true, NIL, NIL, NIL};
+    RBNode *root = NIL;
 
     void afterAdd(RBNode *x) {
         while (x != root && x->p->b == 0) {
@@ -93,32 +111,53 @@ public:
         root->b = 1;
     }
 
-    RBNode *add(int data) {
-        RBNode *current, *parent, *x;
-        current = root;
-        parent = nullptr;
+    void clear(RBNode *p) {
+        if (p == nullptr) return;
+        if (p == p->l && p == p->r) return;
+        clear(p->r);
+        clear(p->l);
+        delete p;
+    }
+
+    RBNode *findNode(int data) {
+        RBNode *current = root;
         while (current != NIL) {
-            if (data == current->key) return current;
-            parent = current;
-            current = data < current->key ? current->l : current->r;
-        }
-        x = new RBNode;
-        x->key = data;
-        x->p = parent;
-        x->l = NIL;
-        x->r = NIL;
-        x->b = 0;
-        if (parent) {
-            if (data < parent->key) {
-                parent->l = x;
+            if (data == current->key) {
+                return current;
             } else {
-                parent->r = x;
+                current = data < current->key ? current->l : current->r;
+            }
+        }
+        return nullptr;
+    }
+
+    void dropNode(RBNode *z) {
+        RBNode *x, *y;
+        if (!z || z == NIL) return;
+        if (z->l == NIL || z->r == NIL) {
+            y = z;
+        } else {
+            y = z->r;
+            while (y->l != NIL) y = y->l;
+        }
+        if (y->l != NIL) {
+            x = y->l;
+        } else {
+            x = y->r;
+        }
+        x->p = y->p;
+        if (y->p) {
+            if (y == y->p->l) {
+                y->p->l = x;
+            } else {
+                y->p->r = x;
             }
         } else {
             root = x;
         }
-        afterAdd(x);
-        return x;
+        if (y != z) z->key = y->key;
+        if (y->b == 1) afterDrop(x);
+        delete y;
     }
 
     void afterDrop(RBNode *x) {
@@ -176,76 +215,41 @@ public:
         x->b = 1;
     }
 
-    void dropNode(RBNode *z) {
-        RBNode *x, *y;
-        if (!z || z == NIL) return;
-        if (z->l == NIL || z->r == NIL) {
-            y = z;
-        } else {
-            y = z->r;
-            while (y->l != NIL) y = y->l;
-        }
-        if (y->l != NIL){
-            x = y->l;
-        } else {
-            x = y->r;
-        }
-        x->p = y->p;
-        if (y->p) {
-            if (y == y->p->l) {
-                y->p->l = x;
+    void leftTurn(RBNode *x) {
+        RBNode *y = x->r;
+        x->r = y->l;
+        if (y->l != NIL) y->l->p = x;
+        if (y != NIL) y->p = x->p;
+        if (x->p) {
+            if (x == x->p->l) {
+                x->p->l = y;
             } else {
-                y->p->r = x;
+                x->p->r = y;
             }
         } else {
-            root = x;
+            root = y;
         }
-        if (y != z) z->key = y->key;
-        if (y->b == 1) afterDrop(x);
-        free(y);
+        y->l = x;
+        if (x != NIL) x->p = y;
     }
 
-    RBNode *findNode(int data) {
-        RBNode *current = root;
-        while(current != NIL){
-            if(data == current->key) {
-                return (current);
+    void rightTurn(RBNode *x) {
+        RBNode *y = x->l;
+        x->l = y->r;
+        if (y->r != NIL) y->r->p = x;
+        if (y != NIL) y->p = x->p;
+        if (x->p) {
+            if (x == x->p->r) {
+                x->p->r = y;
             } else {
-                current = data<current->key ? current->l : current->r;
+                x->p->l = y;
             }
+        } else {
+            root = y;
         }
-        return nullptr;
-    }
-
-    void drop(int k){
-        RBNode * tmp = findNode(k);
-        if (tmp != nullptr){
-            dropNode(tmp);
-        }
-    }
-
-    void clear (RBNode * p){
-        if (p == nullptr) return;
-        if (p == p->l && p == p->r) return;
-        clear(p->r);
-        clear(p->l);
-        delete p;
-    }
-
-    void clear(){
-        clear(root);
-        root = NIL;
-    }
-
-    RBNode * getRoot(){
-        return root;
+        y->r = x;
+        if (x != NIL) x->p = y;
     }
 };
 
-
-
-
-
-
-#endif
-
+#endif // REDBLACKTREE_H
