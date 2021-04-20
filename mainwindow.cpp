@@ -3,7 +3,7 @@
 #include <QThread>
 #include <QRandomGenerator>
 
-MainWindow::MainWindow(QWidget *parent, int newParameter) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     this->showMaximized();
@@ -13,8 +13,7 @@ MainWindow::MainWindow(QWidget *parent, int newParameter) :
 
     ui->treeView->setScene(Scene);
     ui->treeView->setRenderHint(QPainter::Antialiasing);
-    ui->treeView->translate(400,400);
-    ui->treeView->scale(newParameter,-newParameter);
+    ui->treeView->scale(1, -1);
     ui->treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     ui->treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     ui->treeView->setAlignment(Qt::AlignCenter);

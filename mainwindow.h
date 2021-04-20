@@ -15,7 +15,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr, int newParameter = 1);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
    template<class T> void presketch(T *p);
